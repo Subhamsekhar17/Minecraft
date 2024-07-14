@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Form</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <h2 class="mt-5">Registration Form</h2>
+        <form id="registrationForm">
+            <div class="form-group">
+                <label for="name">Name</label>
+                <input type="text" class="form-control" id="name" name="name" required>
+            </div>
+            <div class="form-group">
+                <label for="mobile">Mobile Number</label>
+                <input type="text" class="form-control" id="mobile" name="mobile" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email ID</label>
+                <input type="email" class="form-control" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" class="form-control" id="username" name="username" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" class="form-control" id="password" name="password" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+        <div id="qrCode" class="mt-5">
+            <img id="qrImage" src="https://www.google.com/imgres?q=qr%20code&imgurl=https%3A%2F%2Fmedia-cldnry.s-nbcnews.com%2Fimage%2Fupload%2Ft_fit-760w%2Cf_auto%2Cq_auto%3Abest%2FMSNBC%2FComponents%2FPhoto%2F_new%2F110322-qr-code-hmed-425p.jpg&imgrefurl=https%3A%2F%2Fwww.nbcnews.com%2Fid%2Fwbna45729377&docid=OXNApVeQyyHkZM&tbnid=mwTzV92Q8dlFGM&vet=12ahUKEwjK0c7btaSHAxXGS2wGHUniB1wQM3oECGUQAA..i&w=760&h=760&hcb=2&ved=2ahUKEwjK0c7btaSHAxXGS2wGHUniB1wQM3oECGUQAA" style="display:none;" />
+        </div>
+        <div id="status" class="mt-3"></div>
+    </div>
+
+    <script>
+        document.getElementById('registrationForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+            var formData = new FormData(event.target);
+            var email = formData.get('email');
+            
+            // Show QR code
+            document.getElementById('qrImage').style.display = 'block';
+
+            // Send GET request
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', `http://localhost:8080/${encodeURIComponent(email)}`, true);
+            xhr.timeout = 30 * 60 * 1000; // 30 minutes
+
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    document.getElementById('status').textContent = 'OK';
+                    sendPostRequest(formData);
+                } else {
+                    document.getElementById('status').textContent = 'Payment check failed.';
+                }
+            };
+
+            xhr.ontimeout = function () {
+                document.getElementById('status').textContent = 'Unsuccessful payment (timeout).';
+            };
+
+            xhr.onerror = function () {
+                document.getElementById('status').textContent = 'Unsuccessful payment.';
+            };
+
+            xhr.send();
+        });
+
+        function sendPostRequest(formData) {
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', 'http://localhost:8082', true);
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    document.getElementById('status').textContent = 'Data sent successfully.';
+                } else {
+                    document.getElementById('status').textContent = 'Data sending failed.';
+                }
+            };
+            xhr.onerror = function () {
+                document.getElementById('status').textContent = 'Data sending failed.';
+            };
+            xhr.send(formData);
+        }
+    </script>
+</body>
+</html>
